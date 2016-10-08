@@ -2,6 +2,7 @@ import { Subject } from 'rx';
 import React, { PropTypes } from 'react';
 import { createSelector } from 'reselect';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router';
 
 import Codemirror from 'react-codemirror';
 import NoSSR from 'react-no-ssr';
@@ -33,6 +34,7 @@ export class Editor extends PureComponent {
     super(...args);
     this._editorContent$ = new Subject();
     this.handleChange = this.handleChange.bind(this);
+    this.locationHasChanged = this.locationHasChanged.bind(this);
   }
   static displayName = 'Editor';
   static propTypes = {
@@ -82,7 +84,14 @@ export class Editor extends PureComponent {
     })
   );
 
+  locationHasChanged() {
+    if (this.refs.editor) {
+      this.refs.editor.getCodeMirror().doc.clearHistory();
+    }
+  }
+
   componentDidMount() {
+    this.props.router.listen(this.locationHasChanged);
     const { updateFile = (() => {}) } = this.props;
     this._subscription = this._editorContent$
       .debounce(editorDebounceTimeout)
@@ -119,6 +128,7 @@ export class Editor extends PureComponent {
         >
         <NoSSR>
           <Codemirror
+            ref='editor'
             onChange={ this.handleChange }
             options={ this.createOptions({ executeChallenge, mode, options }) }
             value={ content }
@@ -129,4 +139,4 @@ export class Editor extends PureComponent {
   }
 }
 
-export default connect(mapStateToProps)(Editor);
+export default withRouter(connect(mapStateToProps)(Editor));
