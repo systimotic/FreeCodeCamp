@@ -27,7 +27,8 @@ const options = {
   autoCloseBrackets: true,
   scrollbarStyle: 'null',
   lineWrapping: true,
-  gutters: ['CodeMirror-lint-markers']
+  gutters: ['CodeMirror-lint-markers'],
+  inputStyle: 'contenteditable'
 };
 
 export class Editor extends PureComponent {
