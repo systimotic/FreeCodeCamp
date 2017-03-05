@@ -17,10 +17,12 @@ import {
 import types from '../../common/app/routes/challenges/redux/types';
 import combineSagas from '../../common/utils/combine-sagas';
 
+
 function bindKey(key, actionCreator, eventTrigger) {
   return Observable.fromEventPattern(
     h => MouseTrap.bind(key, h, eventTrigger),
     h => MouseTrap.unbind(key, h, eventTrigger)
+
   )
     .map(actionCreator);
 }
@@ -47,6 +49,14 @@ function mouseTrapSaga(actions$) {
     ),
     bindKey('g t n', toggleNightMode)
   ];
+
+  if (challengeType === step) {
+    const stepTraps$ = [
+      bindKey('right', stepForward, 'keyup'),
+      bindKey('left', stepBackward, 'keyup')
+    ].concat(traps$);
+    return Observable.merge(stepTraps$).takeUntil(actions$.last());
+  }
   return Observable.merge(traps$).takeUntil(actions$.last());
 }
 
